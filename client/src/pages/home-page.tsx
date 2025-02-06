@@ -1,14 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import Countdown from "@/components/Countdown";
 
 export default function HomePage() {
   const { user } = useAuth();
+  const weddingDate = new Date("2024-09-15");
 
   return (
     <div className="min-h-screen bg-black">
       <nav className="absolute top-4 right-4 flex items-center gap-4 text-white/60">
-        <span>{new Date("2024-09-15").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+        <span>{weddingDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
         {user?.isAdmin && (
           <Button
             asChild
@@ -30,6 +32,10 @@ export default function HomePage() {
             <br />
             OREOLUWA
           </h1>
+
+          <div className="mt-8 mb-12">
+            <Countdown targetDate={weddingDate} />
+          </div>
 
           <div className="mt-12 space-y-4">
             <Button

@@ -15,6 +15,7 @@ export const guests = pgTable("guests", {
   email: text("email"),
   isAttending: boolean("is_attending"),
   dietaryRestrictions: text("dietary_restrictions"),
+  plusOne: boolean("plus_one").default(false),
   tableNumber: integer("table_number"),
   rsvpDate: timestamp("rsvp_date"),
 });
