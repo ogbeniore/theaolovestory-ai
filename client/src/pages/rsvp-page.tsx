@@ -27,7 +27,6 @@ export default function RsvpPage() {
       email: "",
       isAttending: true,
       dietaryRestrictions: "",
-      plusOne: false,
     },
   });
 
@@ -99,23 +98,6 @@ export default function RsvpPage() {
                     <FormLabel className="!mt-0">
                       I will attend the wedding
                     </FormLabel>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="plusOne"
-                render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="!mt-0">I'm bringing a guest</FormLabel>
                     <FormMessage />
                   </FormItem>
                 )}

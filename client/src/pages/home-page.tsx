@@ -16,7 +16,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 container mx-auto px-4 py-32 text-center text-white">
           <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-rose-100 to-white text-transparent bg-clip-text">
-            Sarah & Michael
+            Amaka & Oreoluwa
           </h1>
           <p className="text-2xl md:text-3xl mb-8 text-rose-100">
             Join us in celebrating our special day
