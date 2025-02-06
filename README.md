@@ -1,27 +1,3 @@
-# The AO Love Story - Wedding Website
-
-A personalized wedding website for Amaka and Oreoluwa, featuring a minimalist design with RSVP management and an admin dashboard for event planning.
-
-## Features
-
-- 🎨 Responsive single-page wedding website with elegant typography
-- 📝 RSVP functionality for guest management
-- 🌙 Dark/black theme with modern design aesthetic
-- 👑 Admin dashboard for guest list management
-- 📊 RSVP statistics and tracking
-- 📋 CSV import functionality for bulk guest addition
-
-## Prerequisites
-
-Before you begin, ensure you have the following installed:
-- Node.js (v18 or later)
-- PostgreSQL (v14 or later)
-- npm or yarn
-
-## Local Development
-
-1. Clone the repository:
-```bash
 git clone https://github.com/ogbeniore/theaolovestory-ai.git
 cd theaolovestory-ai
 ```
@@ -48,6 +24,18 @@ npm run dev
 ```
 
 The application will be available at `http://localhost:5000`.
+
+## First-Time Setup
+
+1. Create an admin user:
+   - Visit `http://localhost:5000/auth`
+   - Click "Register" and create your admin account
+   - The first user created will automatically have admin access
+
+2. Access the admin dashboard:
+   - Log in with your credentials
+   - Click the "Admin" link in the top navigation
+   - You can now manage guests, track RSVPs, and handle seating arrangements
 
 ## Deployment
 
@@ -97,17 +85,3 @@ For these platforms, make sure to:
 │   └── storage.ts       # Database operations
 └── shared/             # Shared types and schemas
     └── schema.ts       # Database schema and types
-```
-
-## Tech Stack
-
-- **Frontend**: React, Tailwind CSS, shadcn/ui
-- **Backend**: Express.js, Node.js
-- **Database**: PostgreSQL with Drizzle ORM
-- **Authentication**: Passport.js
-- **State Management**: TanStack Query (React Query)
-- **Forms**: React Hook Form with Zod validation
-
-## License
-
-MIT
