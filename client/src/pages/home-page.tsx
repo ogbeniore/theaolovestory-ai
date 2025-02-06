@@ -6,45 +6,43 @@ export default function HomePage() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen">
-      <div 
-        className="h-screen bg-cover bg-center relative"
-        style={{
-          backgroundImage: 'url("https://images.unsplash.com/photo-1503455637927-730bce8583c0")',
-        }}
-      >
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="relative z-10 container mx-auto px-4 py-32 text-center text-white">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-rose-100 to-white text-transparent bg-clip-text">
-            Amaka & Oreoluwa
+    <div className="min-h-screen bg-black">
+      <nav className="absolute top-4 right-4 flex items-center gap-4 text-white/60">
+        <span>{new Date("2024-09-15").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+        {user?.isAdmin && (
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="text-white/60 hover:text-white"
+          >
+            <Link href="/admin">Admin</Link>
+          </Button>
+        )}
+      </nav>
+
+      <main className="flex flex-col items-center justify-center min-h-screen px-4">
+        <div className="text-center">
+          <h1 className="font-serif text-7xl md:text-9xl tracking-wider text-white mb-8">
+            AMAKA
+            <br />
+            <span className="inline-block mt-4 text-8xl md:text-[10rem]">&</span>
+            <br />
+            OREOLUWA
           </h1>
-          <p className="text-2xl md:text-3xl mb-8 text-rose-100">
-            Join us in celebrating our special day
-          </p>
-          <p className="text-xl mb-12">
-            September 15th, 2024 • The Grand Plaza • New York
-          </p>
-          <div className="space-x-4">
+
+          <div className="mt-12 space-y-4">
             <Button
               asChild
               size="lg"
-              className="bg-rose-500 hover:bg-rose-600"
+              variant="outline"
+              className="text-white border-white/20 hover:bg-white/10 px-8"
             >
-              <Link href="/rsvp">RSVP Now</Link>
+              <Link href="/rsvp">RSVP</Link>
             </Button>
-            {user?.isAdmin && (
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="border-rose-300 text-rose-100 hover:bg-rose-500/20"
-              >
-                <Link href="/admin">Admin Dashboard</Link>
-              </Button>
-            )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
