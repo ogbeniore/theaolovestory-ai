@@ -5,10 +5,14 @@ if (!process.env.SENDGRID_API_KEY) {
   throw new Error("SENDGRID_API_KEY environment variable must be set");
 }
 
+if (!process.env.SENDGRID_VERIFIED_SENDER) {
+  throw new Error("SENDGRID_VERIFIED_SENDER environment variable must be set");
+}
+
 const mailService = new MailService();
 mailService.setApiKey(process.env.SENDGRID_API_KEY);
 
-const FROM_EMAIL = 'notifications@amakaandoreoluwa.com';
+const FROM_EMAIL = process.env.SENDGRID_VERIFIED_SENDER;
 const ADMIN_EMAIL = 'admin@amakaandoreoluwa.com';
 
 function isValidEmail(email: string): boolean {
