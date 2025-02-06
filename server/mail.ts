@@ -11,7 +11,14 @@ mailService.setApiKey(process.env.SENDGRID_API_KEY);
 const FROM_EMAIL = 'notifications@amakaandoreoluwa.com';
 const ADMIN_EMAIL = 'admin@amakaandoreoluwa.com';
 
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 export async function sendRsvpNotification(guest: Guest) {
+  console.log(`Attempting to send RSVP notification for guest: ${guest.name}`);
+
   const adminSubject = `New RSVP: ${guest.name}`;
   const adminText = `
 New RSVP received from ${guest.name}
@@ -24,15 +31,22 @@ RSVP Date: ${guest.rsvpDate}
 
   try {
     // Send notification to admin
+    console.log(`Sending admin notification to ${ADMIN_EMAIL}`);
+    if (!isValidEmail(ADMIN_EMAIL)) {
+      throw new Error(`Invalid admin email address: ${ADMIN_EMAIL}`);
+    }
+
     await mailService.send({
       to: ADMIN_EMAIL,
       from: FROM_EMAIL,
       subject: adminSubject,
       text: adminText,
     });
+    console.log('Successfully sent admin notification');
 
     // Send confirmation to guest if they provided an email
-    if (guest.email) {
+    if (guest.email && isValidEmail(guest.email)) {
+      console.log(`Sending guest confirmation to ${guest.email}`);
       const guestSubject = 'Thank you for your RSVP';
       const guestText = `
 Dear ${guest.name},
@@ -56,11 +70,27 @@ Amaka & Oreoluwa
         subject: guestSubject,
         text: guestText,
       });
+      console.log('Successfully sent guest confirmation');
+    } else if (guest.email) {
+      console.log(`Skipping guest email - invalid address: ${guest.email}`);
     }
 
     return true;
-  } catch (error) {
-    console.error('SendGrid email error:', error);
+  } catch (error: any) {
+    console.error('SendGrid email error:', {
+      error: error.message,
+      response: error.response?.body,
+      guest: {
+        name: guest.name,
+        email: guest.email,
+      }
+    });
+
+    // Log specific SendGrid error details if available
+    if (error.response?.body) {
+      console.error('SendGrid API Error Details:', JSON.stringify(error.response.body, null, 2));
+    }
+
     return false;
   }
 }
