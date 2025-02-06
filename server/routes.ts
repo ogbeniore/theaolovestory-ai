@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { insertGuestSchema } from "@shared/schema";
 import { parse } from "csv-parse";
+import { sendRsvpNotification } from "./mail";
 
 export function registerRoutes(app: Express): Server {
   setupAuth(app);
@@ -16,7 +17,14 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/guests", async (req, res) => {
     const validatedGuest = insertGuestSchema.parse(req.body);
-    const guest = await storage.createGuest(validatedGuest);
+    const guest = await storage.createGuest({
+      ...validatedGuest,
+      rsvpDate: new Date(),
+    });
+
+    // Send email notifications
+    await sendRsvpNotification(guest);
+
     res.status(201).json(guest);
   });
 
@@ -33,7 +41,6 @@ export function registerRoutes(app: Express): Server {
     res.sendStatus(204);
   });
 
-  // CSV Upload
   app.post("/api/guests/upload", async (req, res) => {
     const records: any[] = [];
     const parser = parse({
