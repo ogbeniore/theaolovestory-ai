@@ -1,93 +1,97 @@
-import { InsertUser, User, InsertGuest, Guest } from "@shared/schema";
+import { InsertUser, User, InsertGuest, Guest, users, guests } from "@shared/schema";
 import session from "express-session";
-import createMemoryStore from "memorystore";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 
-const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Guest management
   getGuests(): Promise<Guest[]>;
   getGuest(id: number): Promise<Guest | undefined>;
   createGuest(guest: InsertGuest): Promise<Guest>;
   updateGuest(id: number, guest: Partial<InsertGuest>): Promise<Guest>;
   deleteGuest(id: number): Promise<void>;
-  
-  sessionStore: session.SessionStore;
+
+  sessionStore: ReturnType<typeof PostgresSessionStore>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private guests: Map<number, Guest>;
-  private currentUserId: number;
-  private currentGuestId: number;
-  sessionStore: session.SessionStore;
+export class DatabaseStorage implements IStorage {
+  sessionStore: ReturnType<typeof PostgresSessionStore>;
 
   constructor() {
-    this.users = new Map();
-    this.guests = new Map();
-    this.currentUserId = 1;
-    this.currentGuestId = 1;
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
+    this.sessionStore = new PostgresSessionStore({
+      pool,
+      createTableIfMissing: true,
     });
-    
-    // Create default admin user
-    this.createUser({
-      username: "admin",
-      password: "admin",
-      isAdmin: true,
-    } as InsertUser);
   }
 
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values({ ...insertUser, isAdmin: false })
+      .returning();
     return user;
   }
 
   async getGuests(): Promise<Guest[]> {
-    return Array.from(this.guests.values());
+    return await db.select().from(guests);
   }
 
   async getGuest(id: number): Promise<Guest | undefined> {
-    return this.guests.get(id);
+    const [guest] = await db.select().from(guests).where(eq(guests.id, id));
+    return guest;
   }
 
   async createGuest(guest: InsertGuest): Promise<Guest> {
-    const id = this.currentGuestId++;
-    const newGuest: Guest = { ...guest, id };
-    this.guests.set(id, newGuest);
+    const [newGuest] = await db
+      .insert(guests)
+      .values({
+        ...guest,
+        email: guest.email ?? null,
+        isAttending: guest.isAttending ?? null,
+        dietaryRestrictions: guest.dietaryRestrictions ?? null,
+        plusOne: guest.plusOne ?? false,
+        tableNumber: guest.tableNumber ?? null,
+        rsvpDate: guest.rsvpDate ?? null,
+      })
+      .returning();
     return newGuest;
   }
 
   async updateGuest(id: number, updates: Partial<InsertGuest>): Promise<Guest> {
-    const guest = this.guests.get(id);
-    if (!guest) {
+    const [updatedGuest] = await db
+      .update(guests)
+      .set(updates)
+      .where(eq(guests.id, id))
+      .returning();
+
+    if (!updatedGuest) {
       throw new Error("Guest not found");
     }
-    const updatedGuest = { ...guest, ...updates };
-    this.guests.set(id, updatedGuest);
+
     return updatedGuest;
   }
 
   async deleteGuest(id: number): Promise<void> {
-    this.guests.delete(id);
+    await db.delete(guests).where(eq(guests.id, id));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
